@@ -96,6 +96,23 @@ type ISCSITarget struct {
 	Portals     		[]Portal
 }
 
+// LogicalUnit - NexentaStor logicalUnit
+type LogicalUnit struct {
+	Guid                   string `json:"guid"`
+	Alias                  string `json:"alias"`
+	Volume                 string `json:"volume"`
+	VolSize                int    `json:"volSize"`
+	BlockSize              int    `json:"blockSize"`
+	WriteProtect           bool   `json:"writeProtect"`
+	WritebackCacheDisabled bool   `json:"writebackCacheDisabled"`
+	State                  string `json:"state"`
+	AccessState            string `json:"accessState"`
+	MappingCount           int    `json:"mappingCount"`
+	ExposedOverIscsi       bool   `json:"exposedOverIscsi"`
+	ExposedOverFC          bool   `json:"exposedOverFC"`
+	Href                   string `json:"href"`
+}
+
 func (fs *Filesystem) String() string {
 	return fs.Path
 }
@@ -163,6 +180,10 @@ type nefStorageFilesystemsResponse struct {
 
 type nefStorageVolumesResponse struct {
     Data []Volume `json:"data"`
+}
+
+type nefSanLogicalUnitsResponse struct {
+	Data []LogicalUnit `json:"data"`
 }
 
 type nefStorageVolumeGroupsResponse struct {
