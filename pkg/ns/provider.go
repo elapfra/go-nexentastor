@@ -84,6 +84,9 @@ type ProviderInterface interface {
 	GetRemoteInitiator(name string) (remoteInitiator RemoteInitiator, err error)
 	CreateRemoteInitiator(params CreateRemoteInitiatorParams) error
 	UpdateRemoteInitiator(name string, params UpdateRemoteInitiatorParams) error
+
+	// logicalUnits
+	GetLogicalUnits() (logicalUnits []LogicalUnit, err error)
 }
 
 // Provider - NexentaStor API provider

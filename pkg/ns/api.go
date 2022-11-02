@@ -520,6 +520,7 @@ type CreateNfsShareParams struct {
 
 // CreateNfsShare creates NFS share on specified filesystem
 // CLI test:
+//
 //   showmount -e HOST
 //   mkdir -p /mnt/test && sudo mount -v -t nfs HOST:/pool/fs /mnt/test
 //   findmnt /mnt/test
@@ -597,6 +598,7 @@ type CreateSmbShareParams struct {
 // CreateSmbShare creates SMB share (cifs) on specified filesystem
 // Leave shareName empty to generate default value
 // CLI test:
+//
 //   mkdir -p /mnt/test && sudo mount -v -t cifs -o username=admin,password=Nexenta@1 //HOST//pool_fs /mnt/test
 //   findmnt /mnt/test
 func (p *Provider) CreateSmbShare(params CreateSmbShareParams) error {
@@ -1282,4 +1284,60 @@ func (p *Provider) UpdateHostGroup(path string, params UpdateHostGroupParams) er
 
     uri :=  fmt.Sprintf("storage/hostgroups/%s", url.PathEscape(path))
     return p.sendRequest(http.MethodPut, uri, params)
+}
+
+// GetLogicalUnitsSlice returns a slice of logicalUnits with specified limit and offset
+// offset - the first record number of collection, that would be included in result
+func (p *Provider) GetLogicalUnitsSlice(limit, offset int) ([]LogicalUnit, error) {
+	if limit <= 0 || limit >= nsFilesystemListLimit {
+		return nil, fmt.Errorf(
+			"GetLogicalUnitsSlice(): parameter 'limit' must be greater that 0 and less than %d, got: %d",
+			nsFilesystemListLimit,
+			limit,
+		)
+	} else if offset < 0 {
+		return nil, fmt.Errorf(
+			"GetLogicalUnitsSlice(): parameter 'offset' must be greater or equal to 0, got: %d",
+			offset,
+		)
+	}
+
+	uri := p.RestClient.BuildURI("san/logicalUnits", map[string]string{
+		"limit":  fmt.Sprint(limit),
+		"offset": fmt.Sprint(offset),
+	})
+
+	response := nefSanLogicalUnitsResponse{}
+	err := p.sendRequestWithStruct(http.MethodGet, uri, nil, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	logicalUnits := []LogicalUnit{}
+	for _, fs := range response.Data {
+		logicalUnits = append(logicalUnits, fs)
+	}
+
+	return logicalUnits, nil
+}
+
+// GetLogicalUnits returns all NexentaStor logicalUnits
+func (p *Provider) GetLogicalUnits() ([]LogicalUnit, error) {
+	LogicalUnits := []LogicalUnit{}
+
+	offset := 0
+	lastResultCount := nsFilesystemListLimit
+	for lastResultCount >= nsFilesystemListLimit {
+		logicalUnitsSlice, err := p.GetLogicalUnitsSlice(nsFilesystemListLimit-1, offset)
+		if err != nil {
+			return nil, err
+		}
+		for _, logicalUnit := range logicalUnitsSlice {
+			LogicalUnits = append(LogicalUnits, logicalUnit)
+		}
+		lastResultCount = len(logicalUnitsSlice)
+		offset += lastResultCount
+	}
+
+	return LogicalUnits, nil
 }
