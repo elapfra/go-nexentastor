@@ -140,7 +140,7 @@ func (p *Provider) GetVolumesWithStartingToken(parent string, startingToken stri
     // load volumes using slice requests
     offset := 0
     lastResultCount := nsFilesystemListLimit
-    for (noLimit || len(volumes) < limit) && lastResultCount >= nsFilesystemListLimit {
+    for (noLimit || len(volumes) < limit) && lastResultCount >= nsFilesystemListLimit-1 {
         volumesSlice, err := p.GetVolumesSlice(parent, nsFilesystemListLimit-1, offset)
         if err != nil {
             return nil, "", err
@@ -169,7 +169,7 @@ func (p *Provider) GetVolumes(parent string) ([]Volume, error) {
 
     offset := 0
     lastResultCount := nsFilesystemListLimit
-    for lastResultCount >= nsFilesystemListLimit {
+    for lastResultCount >= nsFilesystemListLimit-1 {
         volumesSlice, err := p.GetVolumesSlice(parent, nsFilesystemListLimit-1, offset)
         if err != nil {
             return nil, err
@@ -190,7 +190,7 @@ func (p *Provider) GetFilesystems(parent string) ([]Filesystem, error) {
 
     offset := 1
     lastResultCount := nsFilesystemListLimit
-    for lastResultCount >= nsFilesystemListLimit {
+    for lastResultCount >= nsFilesystemListLimit-1 {
         filesystemsSlice, err := p.GetFilesystemsSlice(parent, nsFilesystemListLimit-1, offset)
         if err != nil {
             return nil, err
@@ -227,7 +227,7 @@ func (p *Provider) GetFilesystemsWithStartingToken(parent string, startingToken 
     // load filesystems using slice requests
     offset := 1
     lastResultCount := nsFilesystemListLimit
-    for (noLimit || len(filesystems) < limit) && lastResultCount >= nsFilesystemListLimit {
+    for (noLimit || len(filesystems) < limit) && lastResultCount >= nsFilesystemListLimit-1 {
         filesystemsSlice, err := p.GetFilesystemsSlice(parent, nsFilesystemListLimit-1, offset)
         if err != nil {
             return nil, "", err
@@ -1327,7 +1327,7 @@ func (p *Provider) GetLogicalUnits() ([]LogicalUnit, error) {
 
 	offset := 0
 	lastResultCount := nsFilesystemListLimit
-	for lastResultCount >= nsFilesystemListLimit {
+	for lastResultCount >= nsFilesystemListLimit-1 {
 		logicalUnitsSlice, err := p.GetLogicalUnitsSlice(nsFilesystemListLimit-1, offset)
 		if err != nil {
 			return nil, err
