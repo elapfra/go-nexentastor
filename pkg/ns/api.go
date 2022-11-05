@@ -907,6 +907,62 @@ func (p *Provider) GetLunMappings(params GetLunMappingsParams) (lunMappings []Lu
     return response.Data, nil
 }
 
+// GetAllLunMappings returns all NexentaStor lunMappings
+func (p *Provider) GetAllLunMappings() ([]LunMapping, error) {
+	LunMappings := []LunMapping{}
+
+	offset := 0
+	lastResultCount := nsFilesystemListLimit
+	for lastResultCount >= nsFilesystemListLimit-1 {
+		lunMappingsSlice, err := p.GetLunMappingsSlice(nsFilesystemListLimit-1, offset)
+		if err != nil {
+			return nil, err
+		}
+		for _, lunMapping := range lunMappingsSlice {
+			LunMappings = append(LunMappings, lunMapping)
+		}
+		lastResultCount = len(lunMappingsSlice)
+		offset += lastResultCount
+	}
+
+	return LunMappings, nil
+}
+
+// GetLunMappingsSlice returns a slice of lunMappings with specified limit and offset
+// offset - the first record number of collection, that would be included in result
+func (p *Provider) GetLunMappingsSlice(limit, offset int) ([]LunMapping, error) {
+	if limit <= 0 || limit >= nsFilesystemListLimit {
+		return nil, fmt.Errorf(
+			"GetLunMappingsSlice(): parameter 'limit' must be greater that 0 and less than %d, got: %d",
+			nsFilesystemListLimit,
+			limit,
+		)
+	} else if offset < 0 {
+		return nil, fmt.Errorf(
+			"GetLunMappingsSlice(): parameter 'offset' must be greater or equal to 0, got: %d",
+			offset,
+		)
+	}
+
+	uri := p.RestClient.BuildURI("san/lunMappings", map[string]string{
+		"limit":  fmt.Sprint(limit),
+		"offset": fmt.Sprint(offset),
+	})
+
+	response := nefLunMappingsResponse{}
+	err := p.sendRequestWithStruct(http.MethodGet, uri, nil, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	lunMappings := []LunMapping{}
+	for _, fs := range response.Data {
+		lunMappings = append(lunMappings, fs)
+	}
+
+	return lunMappings, nil
+}
+
 // GetLunMapping returns NexentaStor lunmapping for a volume
 func (p *Provider) GetLunMapping(path string) (lunMapping LunMapping, err error) {
     if path == "" {
