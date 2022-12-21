@@ -575,6 +575,22 @@ func (p *Provider) GetLicense() (license License, err error)
 ```
 GetLicense returns NexentaStor license
 
+#### func (*Provider) GetLogicalUnits
+
+```go
+func (p *Provider) GetLogicalUnits() (logicalUnits []LogicalUnit, err error)
+```
+Collection of logical units
+
+#### func (*Provider) GetLogicalUnitsSlice
+
+```go
+func (p *Provider) GetLogicalUnitsSlice(limit, offset int) ([]LogicalUnit, error)
+```
+GetLogicalUnitsSlice returns a slice of logical units with specified
+limit and offset offset - the first record number of collection, that would be
+included in result
+
 #### func (*Provider) GetLunMapping
 
 ```go
@@ -588,6 +604,13 @@ GetLunMapping returns NexentaStor lunmapping for a volume
 func (p *Provider) GetLunMappings(params GetLunMappingsParams) (lunMappings []LunMapping, err error)
 ```
 GetLunMappings returns NexentaStor lunmappings for given parameters
+
+#### func (*Provider) GetAllLunMappings
+
+```go
+func (p *Provider) GetAllLunMappings() ([]LunMapping, error) 
+```
+GetLunMappings returns NexentaStor all lunmappings
 
 #### func (*Provider) GetPools
 
@@ -869,6 +892,8 @@ NewProvider creates NexentaStor provider instance
 ```go
 type RSFCluster struct {
 	Name string `json:"clusterName"`
+	Services []Service `json:"services"`
+	Health   Health    `json:"health"`
 }
 ```
 
