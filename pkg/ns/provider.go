@@ -89,6 +89,9 @@ type ProviderInterface interface {
 	// logicalUnits
 	GetLogicalUnits() (logicalUnits []LogicalUnit, err error)
 	GetLogicalUnitsSlice(limit, offset int) ([]LogicalUnit, error)
+
+	// node
+	RebootNode() error
 }
 
 // Provider - NexentaStor API provider

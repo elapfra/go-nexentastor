@@ -1397,3 +1397,8 @@ func (p *Provider) GetLogicalUnits() ([]LogicalUnit, error) {
 
 	return LogicalUnits, nil
 }
+
+func (p *Provider) RebootNode() error {
+	uri := p.RestClient.BuildURI("node/reboot", map[string]string{})
+	return p.sendRequest(http.MethodPost, uri, nil)
+}
