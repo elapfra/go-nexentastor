@@ -3,11 +3,11 @@ package ns
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
-
-	"github.com/sirupsen/logrus"
 
 	"github.com/Nexenta/go-nexentastor/pkg/rest"
 )
@@ -103,6 +103,10 @@ type Provider struct {
 	Log        *logrus.Entry
 }
 
+var (
+	mutex sync.Mutex
+)
+
 func (p *Provider) String() string {
 	return p.Address
 }
@@ -182,8 +186,10 @@ func (p *Provider) sendRequest(method, path string, data interface{}) error {
 func (p *Provider) doAuthRequest(method, path string, data interface{}) ([]byte, error) {
 	l := p.Log.WithField("func", "doAuthRequest()")
 
+	mutex.Lock()
 	statusCode, bodyBytes, err := p.RestClient.Send(method, path, data)
 	if err != nil {
+		mutex.Unlock()
 		return bodyBytes, err
 	}
 
@@ -196,15 +202,18 @@ func (p *Provider) doAuthRequest(method, path string, data interface{}) ([]byte,
 
 		err = p.LogIn()
 		if err != nil {
+			mutex.Unlock()
 			return nil, err
 		}
 
 		// send original request again
 		statusCode, bodyBytes, err = p.RestClient.Send(method, path, data)
 		if err != nil {
+			mutex.Unlock()
 			return bodyBytes, err
 		}
 	}
+	mutex.Unlock()
 
 	if statusCode == http.StatusAccepted {
 		// this is an async job
