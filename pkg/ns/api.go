@@ -771,18 +771,14 @@ func (p *Provider) GetRSFClusters() ([]RSFCluster, error) {
 
 // IsJobDone checks if job is done by jobId
 func (p *Provider) IsJobDone(jobID string) (bool, error) {
-    mutex.Lock()
     uri := fmt.Sprintf("jobStatus/%s", jobID)
 
     statusCode, bodyBytes, err := p.RestClient.Send(http.MethodGet, uri, nil)
     if err != nil { // request failed
-        mutex.Unlock()
         return false, err
     } else if statusCode == http.StatusOK || statusCode == http.StatusCreated { // job is completed
-        mutex.Unlock()
         return true, nil
     } else if statusCode == http.StatusAccepted { // job is in progress (202)
-        mutex.Unlock()
         return false, nil
     }
 
@@ -797,7 +793,7 @@ func (p *Provider) IsJobDone(jobID string) (bool, error) {
             bodyBytes,
         )
     }
-    mutex.Unlock()
+
     return false, err
 }
 
