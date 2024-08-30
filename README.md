@@ -8,7 +8,7 @@ Go library for accessing [NexentaStor](https://nexenta.com/products/nexentastor)
 
 ## Latest version
 
-[![Releases](https://img.shields.io/github/tag/nexenta/go-nexentastor.svg)](https://github.com/Nexenta/go-nexentastor/releases)
+[![Releases](https://img.shields.io/github/tag/elapfra/go-nexentastor.svg)](https://github.com/elapfra/go-nexentastor/releases)
 
 See [CHANGELOG.md](CHANGELOG.md)
 
